@@ -252,6 +252,30 @@ def track_robot():
 
 
 # --------------------------------------------------
+# 6. LIVE ROBOT LOCALIZATION
+# --------------------------------------------------
+
+def localize_robot_live():
+    """Run live localization using a selected saved calibration."""
+
+    calibration = choose_calibration()
+
+    if calibration is None:
+        return
+
+    print(f"\nSelected transformation: {calibration.name}")
+
+    arguments = [
+        "--tag-homography",
+        calibration
+    ]
+
+    run_script("robot_localize_live.py", arguments)
+
+    pause()
+
+
+# --------------------------------------------------
 # 5. VIEW PREVIOUS RESULTS
 # --------------------------------------------------
 
@@ -327,6 +351,7 @@ def main():
         print("3. Estimate robot pose")
         print("4. Track robot in video")
         print("5. View previous results")
+        print("6. Live robot localization")
         print("0. Exit")
 
         choice = input("\nEnter your choice: ").strip()
@@ -346,6 +371,9 @@ def main():
         elif choice == "5":
             view_results()
 
+        elif choice == "6":
+            localize_robot_live()
+
         elif choice == "0":
             print("\nExiting Robot Localization.")
             break
@@ -356,4 +384,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
