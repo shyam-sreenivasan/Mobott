@@ -177,6 +177,11 @@ class LiveRobotLocalization(Node):
         if frame is None:
             return
 
+        frame = cv2.rotate(
+        frame,
+        cv2.ROTATE_90_COUNTERCLOCKWISE
+    )
+
         # Load calibration once.
         if self.H is None:
 

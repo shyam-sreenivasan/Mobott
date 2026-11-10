@@ -109,12 +109,12 @@ def calibrate(args):
     else:
         print(
             f"Select calibration-frame corners at {args.plane_height_cm:.1f} cm "
-            "above the table, in order: M -> Y -> F -> X"
+            "above the table, in order: X -> M -> Y -> F"
         )
 
     print("Select the physical workspace corners, not marker centers.")
 
-    corners = select_points(image, ["M", "Y", "F", "X"])
+    corners = select_points(image, ["X", "M", "Y", "F"])
 
     if corners is None:
         print("Calibration cancelled.")
@@ -127,11 +127,11 @@ def calibrate(args):
     height_px = round(args.height_cm * args.pixels_per_cm)
 
     destination = np.array([
-        [0, 0],
-        [width_px - 1, 0],
-        [width_px - 1, height_px - 1],
-        [0, height_px - 1]
-    ], dtype=np.float32)
+    [0, height_px - 1],                # X: bottom-left
+    [0, 0],                            # M: top-left
+    [width_px - 1, 0],                 # Y: top-right
+    [width_px - 1, height_px - 1]      # F: bottom-right
+], dtype=np.float32)
 
     H = cv2.getPerspectiveTransform(corners, destination)
 
