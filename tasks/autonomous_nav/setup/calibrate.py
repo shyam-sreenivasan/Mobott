@@ -2,7 +2,9 @@
 """Calibrate the tabletop from the live Conduit camera feed."""
 
 import json
+import re
 import sys
+from datetime import datetime
 from pathlib import Path
 import time
 
@@ -18,6 +20,10 @@ TOPIC = '/conduit/camera/front/image_raw/compressed'
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent   # this file is in setup/
 CONFIG_PATH = PROJECT_DIR / 'setup' / 'config.json'
+CALIBRATION_DIR = PROJECT_DIR / 'calibration'
+CALIBRATION_IMAGE_DIR = CALIBRATION_DIR / 'images'
+BEV_PIXELS_PER_CM = 10            # bird's-eye reference image only
+CALIBRATION_NAME = 'workspace'     # saves workspace_1, workspace_2, ...
 
 CAPTURE_SECONDS = 2.0      # how long to collect frames
 FRAME_TIMEOUT_S = 5.0      # give up if no frame arrives this long
@@ -166,6 +172,75 @@ def compute_homography(markers, x_length_cm, y_length_cm,
     return cv2.getPerspectiveTransform(src, dst)
 
 
+def save_bev_image(H, frame, config, name):
+    """Save a bird's-eye view of the workspace for reference (not used by code).
+
+    H maps pixels -> cm, so the image is scaled x10 (10 pixels per cm) and
+    flipped vertically so that Y (y up) appears at the top of the picture.
+    """
+    scale = BEV_PIXELS_PER_CM
+    width_px = int(round(config['x_length_cm'] * scale))
+    height_px = int(round(config['y_length_cm'] * scale))
+
+    cm_to_image = np.array([
+        [scale, 0.0,    0.0],
+        [0.0,   -scale, config['y_length_cm'] * scale],
+        [0.0,   0.0,    1.0],
+    ])
+
+    bev = cv2.warpPerspective(frame, cm_to_image @ H, (width_px, height_px))
+
+    CALIBRATION_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    bev_path = CALIBRATION_IMAGE_DIR / f'{name}_bev.png'
+    cv2.imwrite(str(bev_path), bev)
+    print(f'Saved: {bev_path}')
+
+
+def next_calibration_name():
+    """Return workspace_{i} with i one higher than any existing calibration."""
+    pattern = re.compile(rf'^{CALIBRATION_NAME}_(\d+)\.(npy|json)$')
+    numbers = [
+        int(match.group(1))
+        for path in CALIBRATION_DIR.iterdir()
+        if (match := pattern.match(path.name))
+    ]
+    return f'{CALIBRATION_NAME}_{max(numbers, default=0) + 1}'
+
+
+def save_calibration(H, frame, markers, config):
+    """Save the homography (.npy) and its details (.json) in calibration/."""
+    CALIBRATION_DIR.mkdir(parents=True, exist_ok=True)
+
+    name = next_calibration_name()
+    npy_path = CALIBRATION_DIR / f'{name}.npy'
+    json_path = CALIBRATION_DIR / f'{name}.json'
+
+    np.save(npy_path, H)
+
+    metadata = {
+        'mapping': 'camera pixels -> table cm',
+        'frame': 'X=(0,0), Y=(0,y_length), U=(x_length,y_length), D=(x_length,0)',
+        'x_length_cm': config['x_length_cm'],
+        'y_length_cm': config['y_length_cm'],
+        'marker_width_cm': config['marker_width_cm'],
+        'marker_height_cm': config['marker_height_cm'],
+        'image_width_px': int(frame.shape[1]),
+        'image_height_px': int(frame.shape[0]),
+        'camera_topic': TOPIC,
+        'marker_centers_px': {
+            label: list(markers[label]['center']) for label in ['X', 'Y', 'U', 'D']
+        },
+        'created': datetime.now().isoformat(timespec='seconds'),
+    }
+
+    json_path.write_text(json.dumps(metadata, indent=2))
+
+    print(f'Saved: {npy_path}')
+    print(f'Saved: {json_path}')
+
+    save_bev_image(H, frame, config, name)
+
+
 def load_config():
     """Read the calibration inputs from config.json in the project folder."""
     required = ['x_length_cm', 'y_length_cm', 'marker_width_cm', 'marker_height_cm']
@@ -203,3 +278,5 @@ if __name__ == '__main__':
     )
     print('Homography (pixels -> cm):')
     print(H)
+
+    save_calibration(H, frame, markers, config)

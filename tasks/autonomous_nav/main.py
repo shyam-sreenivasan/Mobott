@@ -55,11 +55,25 @@ def check_camera_stream():
 
 
 # --------------------------------------------------
+# 2. CALIBRATE WORKSPACE
+# --------------------------------------------------
+
+def calibrate_workspace():
+    print("\nCalibrating workspace from the live camera...")
+
+    if not run_script("setup/calibrate.py"):
+        print("\nCalibration was not completed.")
+
+    pause()
+
+
+# --------------------------------------------------
 # MAIN MENU
 # --------------------------------------------------
 
 MENU = [
     ("Check camera stream", check_camera_stream),
+    ("Calibrate workspace", calibrate_workspace),
 ]
 
 
