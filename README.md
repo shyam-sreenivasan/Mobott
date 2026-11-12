@@ -1,11 +1,11 @@
-# Assistive Mobile Robot Prototype with ACEBOTT
+# Assistive Mobile Robot Prototype with Mobott
 
 A small differential-drive robotics platform for experimenting with **person
 following, sensing, control, and assistive load-carrying concepts**.
 
 The longer-term goal is to explore a mobile robot that can **follow a user,
 carry personal loads, and eventually navigate safely at pedestrian speeds**.
-The current ACEBOTT platform is a low-cost prototype used to test the
+The current Mobott platform is a low-cost prototype used to test the
 underlying robotics stack before moving to a larger load-bearing platform.
 
 ## Current Capabilities
@@ -57,7 +57,7 @@ follow controller
       ↓
 /cmd_vel
       ↓
-ACEBOTT bridge
+Mobott bridge
       ↓
 ESP32 differential-drive robot
 ```
@@ -193,7 +193,7 @@ iPhone bridge publishing `/conduit/camera/front/image_raw/compressed`.
                                               |
                                        /follow_cmd_vel
                                               |
-                                        acebott_bridge --TCP 1234--> robot
+                                        Mobott_bridge --TCP 1234--> robot
 ```
 
 `/follow_cmd_vel` is kept distinct from `/cmd_vel` so an obstacle-safety
@@ -205,7 +205,7 @@ The package lives in this repo but is built from a colcon workspace, via
 a symlink:
 
 ```bash
-ln -s ~/workspace/Robotics-with-Acebott-Car/ros2/person_follower \
+ln -s ~/workspace/Robotics-with-Mobott-Car/ros2/person_follower \
       ~/sensorstream_ws/src/person_follower
 
 cd ~/sensorstream_ws
@@ -304,7 +304,7 @@ ros2 run person_follower person_tracker
 ros2 run person_follower follow_controller
 
 # talks to the robot; nothing else drives it
-ros2 run person_follower acebott_bridge --ros-args -p esp_ip:=<robot-ip>
+ros2 run person_follower Mobott_bridge --ros-args -p esp_ip:=<robot-ip>
 ```
 
 The tracker and detector open an OpenCV window: green box is the locked
@@ -404,7 +404,7 @@ own; it reports a verdict and exits.
 
 ```bash
 # terminal 1
-ros2 run person_follower acebott_bridge --ros-args \
+ros2 run person_follower Mobott_bridge --ros-args \
   -p esp_ip:=<robot-ip> -r /cmd_vel:=/follow_cmd_vel
 
 # terminal 2
@@ -447,7 +447,7 @@ turns to keep whoever is in the room framed. Distance is ignored;
 ```bash
 ros2 run person_follower person_tracker        # perception
 ros2 run person_follower pan_tracker           # rotate-only controller
-ros2 run person_follower acebott_bridge --ros-args \
+ros2 run person_follower Mobott_bridge --ros-args \
   -p esp_ip:=<robot-ip> -r /cmd_vel:=/follow_cmd_vel
 ```
 
@@ -485,7 +485,7 @@ drives straight, never both — the same approach `roam.py` uses.
 ### Sign conventions
 
 `/cmd_vel` uses standard ROS signs (+x forward, +z left). The robot's own
-protocol differs, so `acebott_bridge` applies `w_scale = -1.0`: `roam.py`'s
+protocol differs, so `Mobott_bridge` applies `w_scale = -1.0`: `roam.py`'s
 `turn_for()` documents "direction is -1 for left, +1 for right". Forward
 (`v`) is **not** inverted. Keep these flips in the bridge only, so every
 other node can use normal ROS conventions.
