@@ -1,4 +1,4 @@
-robot/secrets.h
+ESP32/secrets.h
 
 # Sensor telemetry captured during runs
 sensor-log-*.csv
