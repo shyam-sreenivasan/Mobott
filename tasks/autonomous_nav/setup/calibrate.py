@@ -17,7 +17,7 @@ from sensor_msgs.msg import CompressedImage
 TOPIC = '/conduit/camera/front/image_raw/compressed'
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent   # this file is in setup/
-CONFIG_PATH = PROJECT_DIR / 'config.json'
+CONFIG_PATH = PROJECT_DIR / 'setup' / 'config.json'
 
 CAPTURE_SECONDS = 2.0      # how long to collect frames
 FRAME_TIMEOUT_S = 5.0      # give up if no frame arrives this long
