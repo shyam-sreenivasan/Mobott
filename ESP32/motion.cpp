@@ -10,7 +10,7 @@ static const int M4_F = 32,  M4_B = 16;
 
 static float v_smooth = 0;
 static float w_smooth = 0;
-static const float ALPHA = 0.2f;
+static const float ALPHA = 1.0f;
 static const float DEADBAND = 0.05f;
 
 void motionInit() {
@@ -33,6 +33,6 @@ void motionUpdate(float v, float w) {
   if      (right >  DEADBAND) rightCmd = M2_F | M4_F;
   else if (right < -DEADBAND) rightCmd = M2_B | M4_B;
 
-  int speed = (int)(max(abs(left), abs(right)) * 255);
+  int speed = constrain((int)(max(abs(left), abs(right)) * 255), 0, 255);
   motorMove(leftCmd | rightCmd, speed);
 }

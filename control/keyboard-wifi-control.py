@@ -3,7 +3,8 @@ import keyboard
 import time
 
 # 🔧 change this to ESP32 IP shown in Serial Monitor
-ESP_IP = "10.0.0.18"
+ESP_IP = "10.157.163.120"
+
 PORT = 1234
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,0 +1,27 @@
+
+{
+    "calibration_name": "empty0",
+    "source_image": "/home/varun/Documents/projects/Robotics-with-Acebott-Car/tabletop_acebott/data/images/empty0.png",
+    "width_cm": 90.0,
+    "height_cm": 74.0,
+    "image_width_px": 854,
+    "image_height_px": 480,
+    "bev_width_px": 900,
+    "bev_height_px": 740,
+    "pixels_per_cm": 10.0,
+    "plane_height_cm": 0.0,
+    "corner_order": [
+        "M",
+        "Y",
+        "F",
+        "X"
+    ],
+    "coordinate_frame_version": "X_BOTTOM_LEFT_X_RIGHT_Y_UP_V1",
+    "source_corners_px": [
+        [793.0, 430.0],
+        [93.0, 424.0],
+        [199.0, 20.0],
+        [691.0, 27.0]
+    ]
+}
+
