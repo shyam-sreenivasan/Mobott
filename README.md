@@ -6,7 +6,7 @@ concepts**.
 
 The longer-term goal is to explore a mobile robot that can **follow a user,
 carry personal loads, and eventually navigate safely at pedestrian speeds**.
-The current ACEBOTT platform is a low-cost prototype used to test the
+The current MoBoTT platform is a low-cost prototype used to test the
 underlying robotics stack before moving to a larger load-bearing platform.
 
 ## Current Capabilities
@@ -212,7 +212,7 @@ iPhone bridge publishing `/conduit/camera/front/image_raw/compressed`.
                                               |
                                        /follow_cmd_vel
                                               |
-                                        acebott_bridge --TCP 1234--> robot
+                                        MoBoTT_bridge --TCP 1234--> robot
 ```
 
 `/follow_cmd_vel` is kept distinct from `/cmd_vel` so an obstacle-safety
@@ -224,7 +224,7 @@ The package lives in this repo but is built from a colcon workspace, via
 a symlink:
 
 ```bash
-ln -s ~/workspace/Robotics-with-Acebott-Car/tasks/person_follower \
+ln -s ~/workspace/Robotics-with-MoBoTT-Car/tasks/person_follower \
       ~/sensorstream_ws/src/person_follower
 
 cd ~/sensorstream_ws
@@ -319,7 +319,7 @@ ros2 run person_follower person_tracker
 ros2 run person_follower follow_controller
 
 # talks to the robot; nothing else drives it
-ros2 run person_follower acebott_bridge --ros-args -p esp_ip:=<robot-ip>
+ros2 run person_follower MoBoTT_bridge --ros-args -p esp_ip:=<robot-ip>
 ```
 
 The tracker and detector open an OpenCV window: green box is the locked
@@ -419,7 +419,7 @@ own; it reports a verdict and exits.
 
 ```bash
 # terminal 1
-ros2 run person_follower acebott_bridge --ros-args \
+ros2 run person_follower MoBoTT_bridge --ros-args \
   -p esp_ip:=<robot-ip> -r /cmd_vel:=/follow_cmd_vel
 
 # terminal 2
@@ -462,7 +462,7 @@ turns to keep whoever is in the room framed. Distance is ignored;
 ```bash
 ros2 run person_follower person_tracker        # perception
 ros2 run person_follower pan_tracker           # rotate-only controller
-ros2 run person_follower acebott_bridge --ros-args \
+ros2 run person_follower MoBoTT_bridge --ros-args \
   -p esp_ip:=<robot-ip> -r /cmd_vel:=/follow_cmd_vel
 ```
 
@@ -501,7 +501,7 @@ in place or drives straight, never both.
 
 `/cmd_vel` uses standard ROS signs (+x forward, +z left). The robot's own
 protocol differs: on this robot a positive `w` turns right (the keyboard
-scripts send `w = +1` for `D`), so `acebott_bridge` applies
+scripts send `w = +1` for `D`), so `MoBoTT_bridge` applies
 `w_scale = -1.0`. Forward (`v`) is **not** inverted. Keep these flips in the bridge only, so every other
 node can use normal ROS conventions.
 
@@ -545,7 +545,7 @@ Honest state of the prototype, since these shape what is worth building next:
 - **No obstacle avoidance.** The robot will drive into anything between it and
   the person.
 - **No on-robot sensors.** The ultrasonic sensor and servo were removed from
-  the firmware, so the robot no longer sends telemetry. `acebott_bridge` still
+  the firmware, so the robot no longer sends telemetry. `MoBoTT_bridge` still
   listens for it and `/car/distance` stays empty, and the joystick's right
   stick sends servo commands the firmware no longer understands.
 - **Following is not yet smooth.** Turning is coarse, and reacquisition after a
